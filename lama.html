@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtraction Calculator</title>
+  <style>
+   body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+        }
+        input[type="number"] {
+            padding: 8px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+  </style>
+</head>
+<body>
+    <div class="container"> 
+        <h1>الإيجار</h1>
+        <p>المبلغ الحالي: <span id="currentSum">1680</span></p>
+        <input type="number" id="numberToSubtract" placeholder="Enter a number">
+        <button onclick="subtract()">احسب</button>
+        <button onclick="undo()">تراجع</button>
+        <button onclick="deleteAll()">احذف</button>
+        <p>مبلغ الفاتورة السابق: <span id="previousInputs"></span></p>
+        <p>المجموع السابق: <span id="previousResults"></span></p>
+</div>
+
+
+  <script>
+    let currentSum = 1680;
+    let previousInputs = [];
+    let previousResults = [];
+
+    function subtract() {
+      const numberToSubtract = parseInt(document.getElementById("numberToSubtract").value);
+
+      if (isNaN(numberToSubtract) || numberToSubtract <= 0) {
+        alert("Please enter a valid positive number.");
+        return;
+      }
+
+      currentSum -= numberToSubtract;
+      previousInputs.push(numberToSubtract);
+      previousResults.push(currentSum);
+
+      document.getElementById("currentSum").textContent = currentSum;
+      document.getElementById("previousInputs").textContent = previousInputs.join(", ");
+      document.getElementById("previousResults").textContent = previousResults.join(", ");
+
+      // Save previous inputs and results to local storage
+      localStorage.setItem("previousInputs", JSON.stringify(previousInputs));
+      localStorage.setItem("previousResults", JSON.stringify(previousResults));
+    }
+
+    function undo() {
+      if (previousInputs.length > 0 && previousResults.length > 0) {
+        previousInputs.pop();
+        previousResults.pop();
+        currentSum = previousResults[previousResults.length - 1];
+
+        document.getElementById("currentSum").textContent = currentSum;
+        document.getElementById("previousInputs").textContent = previousInputs.join(", ");
+        document.getElementById("previousResults").textContent = previousResults.join(", ");
+
+        // Save the updated previous inputs and results
+        localStorage.setItem("previousInputs", JSON.stringify(previousInputs));
+        localStorage.setItem("previousResults", JSON.stringify(previousResults));
+      } else {
+        alert("There are no previous operations to undo.");
+      }
+    }
+
+    function calculateAgain() {
+      currentSum = 1620;
+      previousInputs = [];
+      previousResults = [];
+
+      document.getElementById("currentSum").textContent = currentSum;
+      document.getElementById("previousInputs").textContent = "";
+      document.getElementById("previousResults").textContent = "";
+
+      // Clear local storage
+      localStorage.removeItem("previousInputs");
+      localStorage.removeItem("previousResults");
+    }
+
+    function deleteAll() {
+      if (confirm("Are you sure you want to delete all data?")) {
+        currentSum = 1620;
+        previousInputs = [];
+        previousResults = [];
+
+        document.getElementById("currentSum").textContent = currentSum;
+        document.getElementById("previousInputs").textContent = "";
+        document.getElementById("previousResults").textContent = "";
+
+        // Clear local storage
+        localStorage.removeItem("previousInputs");
+        localStorage.removeItem("previousResults");
+      }
+    }
+
+    // Load previous inputs and results from local storage on page load
+    window.onload = function() {
+      const storedPreviousInputs = localStorage.getItem("previousInputs");
+      const storedPreviousResults = localStorage.getItem("previousResults");
+
+      if (storedPreviousInputs) {
+        previousInputs = JSON.parse(storedPreviousInputs);
+        document.getElementById("previousInputs").textContent = previousInputs.join(", ");
+      }
+
+      if (storedPreviousResults) {
+        previousResults = JSON.parse(storedPreviousResults);
+        document.getElementById("previousResults").textContent = previousResults.join(", ");
+      }
+
+      // Update currentSum based on the last previous result
+      if (previousResults.length > 0) {
+        currentSum = previousResults[previousResults.length - 1];
+        document.getElementById("currentSum").textContent = currentSum;
+      }
+    };
+  </script>
+</body>
+</html>
